@@ -8,9 +8,9 @@ import com.twitter.finagle.builder.{Server, ServerBuilder}
 import com.twitter.finagle.Service
 import com.twitter.util.Future
 import org.jboss.netty.handler.codec.string.{StringEncoder, StringDecoder}
-import org.jboss.netty.channel.{Channels, ChannelPipelineFactory}
 import org.jboss.netty.handler.codec.frame.{Delimiters, DelimiterBasedFrameDecoder}
 import org.jboss.netty.util.CharsetUtil
+import org.jboss.netty.channel.{ChannelPipeline, Channels, ChannelPipelineFactory}
 
 class EchoServer(address: InetSocketAddress) {
 
@@ -37,18 +37,20 @@ class EchoClient(address: InetSocketAddress) {
 
 }
 
+/**
+ * http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelPipeline.html
+ * http://docs.jboss.org/netty/3.2/guide/html/start.html#start.pojo
+ */
 object StringCodec extends CodecFactory[String, String] {
-
-  // TODO
 
   override def server = Function.const {
     new Codec[String, String] {
-      def pipelineFactory = new ChannelPipelineFactory {
-        def getPipeline = {
+      override def pipelineFactory = new ChannelPipelineFactory {
+        override def getPipeline(): ChannelPipeline = {
           val pipeline = Channels.pipeline()
           pipeline.addLast("line", new DelimiterBasedFrameDecoder(100, Delimiters.lineDelimiter: _*))
-          pipeline.addLast("stringDecoder", new StringDecoder(CharsetUtil.UTF_8))
-          pipeline.addLast("stringEncoder", new StringEncoder(CharsetUtil.UTF_8))
+          pipeline.addLast("edecode", new StringDecoder(CharsetUtil.UTF_8))
+          pipeline.addLast("encode", new StringEncoder(CharsetUtil.UTF_8))
           pipeline
         }
       }
@@ -57,11 +59,11 @@ object StringCodec extends CodecFactory[String, String] {
 
   override def client = Function.const {
     new Codec[String, String] {
-      def pipelineFactory = new ChannelPipelineFactory {
-        def getPipeline = {
+      override def pipelineFactory = new ChannelPipelineFactory {
+        override def getPipeline(): ChannelPipeline  = {
           val pipeline = Channels.pipeline()
-          pipeline.addLast("stringEncode", new StringEncoder(CharsetUtil.UTF_8))
-          pipeline.addLast("stringDecode", new StringDecoder(CharsetUtil.UTF_8))
+          pipeline.addLast("encode", new StringEncoder(CharsetUtil.UTF_8))
+          pipeline.addLast("decode", new StringDecoder(CharsetUtil.UTF_8))
           pipeline
         }
       }
