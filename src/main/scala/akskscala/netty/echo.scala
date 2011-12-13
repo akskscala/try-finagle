@@ -2,7 +2,6 @@ package akskscala.netty
 
 import java.util.concurrent.Executors
 import java.net.InetSocketAddress
-import com.twitter.logging.Logger
 import java.util.concurrent.atomic.AtomicLong
 import org.jboss.netty.channel._
 import org.jboss.netty.buffer.{ChannelBuffer, ChannelBuffers}
@@ -21,7 +20,6 @@ class EchoClient(host: String = "localhost", port: Int, firstMessageSize: Int = 
       Executors.newCachedThreadPool()
     )
   )
-  println("client has been initialized...")
 
   def connect(): Unit = {
     // Set up the pipeline factory.
@@ -50,32 +48,10 @@ class EchoClient(host: String = "localhost", port: Int, firstMessageSize: Int = 
 
 }
 
-object EchoClient {
-
-  def main(args: Array[String]): Unit = {
-
-    // Print usage if no argment is specified
-    if (args.length < 2 || args.length > 3) {
-      println("Usage: " + classOf[EchoClient].getSimpleName + " <host> <port> [<first message size>]")
-      return ()
-    }
-    // Parse options.
-    val host = args(0)
-    val port: Int = args(1).toInt
-    val firstMessageSize: Int = if (args.length == 3) args(2).toInt else 256
-
-    val client = new EchoClient(host, port, firstMessageSize)
-    client.connect()
-  }
-
-}
-
 /**
  * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/example/echo/EchoClientHandler.html
  */
 class EchoClientHandler(val firstMessageSize: Int) extends SimpleChannelUpstreamHandler {
-
-  private val logger: Logger = Logger.get(classOf[EchoClientHandler])
 
   if (firstMessageSize <= 0) {
     throw new IllegalArgumentException("firstMessageSize: " + firstMessageSize)
@@ -102,7 +78,7 @@ class EchoClientHandler(val firstMessageSize: Int) extends SimpleChannelUpstream
 
   override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
     //  Close the connection when an exception is raised.
-    logger.warning("Unexpected exception from downstream.", e.getCause)
+    e.getCause.printStackTrace()
     e.getChannel.close()
   }
 
@@ -144,16 +120,12 @@ class EchoServer(port: Int = EchoServer.port) {
 
 object EchoServer {
   val port = 8001
-
-  def main(args: Array[String]): Unit = new EchoServer(port).start()
 }
 
 /**
  * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/example/echo/EchoServerHandler.html
  */
 class EchoServerHandler extends SimpleChannelUpstreamHandler {
-
-  private val logger: Logger = Logger.get(classOf[EchoServerHandler])
 
   val transferredBytes: AtomicLong = new AtomicLong
 
@@ -165,7 +137,7 @@ class EchoServerHandler extends SimpleChannelUpstreamHandler {
 
   override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
     // Close the connection when an exception is raised.
-    logger.warning("Unexpected exception from downstream.", e.getCause)
+    e.getCause.printStackTrace()
     e.getChannel.close()
   }
 

@@ -8,7 +8,7 @@ import concurrent.ops._
 /**
  * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/example/echo/package-summary.html
  */
-class EchoSpec extends FlatSpec with ShouldMatchers {
+class   EchoSpec extends FlatSpec with ShouldMatchers {
 
   "echo example" should "work fine" in {
 
