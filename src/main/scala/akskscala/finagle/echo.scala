@@ -60,7 +60,7 @@ object StringCodec extends CodecFactory[String, String] {
   override def client = Function.const {
     new Codec[String, String] {
       override def pipelineFactory = new ChannelPipelineFactory {
-        override def getPipeline(): ChannelPipeline  = {
+        override def getPipeline(): ChannelPipeline = {
           val pipeline = Channels.pipeline()
           pipeline.addLast("encode", new StringEncoder(CharsetUtil.UTF_8))
           pipeline.addLast("decode", new StringDecoder(CharsetUtil.UTF_8))
