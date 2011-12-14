@@ -12,6 +12,7 @@ libraryDependencies <++= (scalaVersion) { scalaVersion =>
     "com.twitter" %% "finagle-stream" % "1.9.11",
     "com.twitter" %% "util-core" % "1.12.8",
     "org.jboss.netty" % "netty" % "3.2.7.Final",
+    "com.github.jsuereth.scala-arm" %% "scala-arm" % "0.3" % "test",
     "org.scalatest" %% "scalatest" % "1.6.1" % "test"
   )
 }
