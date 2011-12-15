@@ -9,6 +9,65 @@ import org.jboss.netty.bootstrap.{ServerBootstrap, ClientBootstrap}
 import socket.nio.{NioServerSocketChannelFactory, NioClientSocketChannelFactory}
 
 /**
+ * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/example/echo/EchoServer.html
+ */
+class EchoServer(port: Int = EchoServer.port) {
+
+  // Configure the server.
+  private val bootstrap: ServerBootstrap = new ServerBootstrap(
+    new NioServerSocketChannelFactory(
+      Executors.newCachedThreadPool(),
+      Executors.newCachedThreadPool()
+    )
+  )
+
+  def start(): ServerBootstrap = {
+
+    // Set up the pipeline factory.
+    bootstrap.setPipelineFactory {
+      new ChannelPipelineFactory() {
+        override def getPipeline(): ChannelPipeline = {
+          return Channels.pipeline(new EchoServerHandler)
+        }
+      }
+    }
+    // Bind and start to accept incoming connections.
+    bootstrap.bind(new InetSocketAddress(port))
+
+    return bootstrap
+  }
+
+  def stop(): Unit = bootstrap.releaseExternalResources()
+
+}
+
+
+object EchoServer {
+  val port = 8001
+}
+
+/**
+ * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/example/echo/EchoServerHandler.html
+ */
+class EchoServerHandler extends SimpleChannelUpstreamHandler {
+
+  val transferredBytes: AtomicLong = new AtomicLong
+
+  override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent): Unit = {
+    // Send back the received message to the remote peer.
+    transferredBytes.addAndGet(e.getMessage.asInstanceOf[ChannelBuffer].readableBytes)
+    e.getChannel.write(e.getMessage)
+  }
+
+  override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
+    // Close the connection when an exception is raised.
+    e.getCause.printStackTrace()
+    e.getChannel.close()
+  }
+
+}
+
+/**
  * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/example/echo/EchoClient.html
  */
 class EchoClient(host: String = "localhost", port: Int, firstMessageSize: Int = 256) {
@@ -78,65 +137,6 @@ class EchoClientHandler(val firstMessageSize: Int) extends SimpleChannelUpstream
 
   override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
     //  Close the connection when an exception is raised.
-    e.getCause.printStackTrace()
-    e.getChannel.close()
-  }
-
-}
-
-/**
- * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/example/echo/EchoServer.html
- */
-class EchoServer(port: Int = EchoServer.port) {
-
-  // Configure the server.
-  private val bootstrap: ServerBootstrap = new ServerBootstrap(
-    new NioServerSocketChannelFactory(
-      Executors.newCachedThreadPool(),
-      Executors.newCachedThreadPool()
-    )
-  )
-
-  def start(): ServerBootstrap = {
-
-    // Set up the pipeline factory.
-    bootstrap.setPipelineFactory {
-      new ChannelPipelineFactory() {
-        override def getPipeline(): ChannelPipeline = {
-          return Channels.pipeline(new EchoServerHandler)
-        }
-      }
-    }
-    // Bind and start to accept incoming connections.
-    bootstrap.bind(new InetSocketAddress(port))
-
-    return bootstrap
-  }
-
-  def stop(): Unit = bootstrap.releaseExternalResources()
-
-}
-
-
-object EchoServer {
-  val port = 8001
-}
-
-/**
- * http://docs.jboss.org/netty/3.2/xref/org/jboss/netty/example/echo/EchoServerHandler.html
- */
-class EchoServerHandler extends SimpleChannelUpstreamHandler {
-
-  val transferredBytes: AtomicLong = new AtomicLong
-
-  override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent): Unit = {
-    // Send back the received message to the remote peer.
-    transferredBytes.addAndGet(e.getMessage.asInstanceOf[ChannelBuffer].readableBytes)
-    e.getChannel.write(e.getMessage)
-  }
-
-  override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
-    // Close the connection when an exception is raised.
     e.getCause.printStackTrace()
     e.getChannel.close()
   }

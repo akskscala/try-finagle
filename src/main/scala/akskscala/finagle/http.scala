@@ -47,6 +47,14 @@ class HelloWorldHttpServer(address: InetSocketAddress) {
   type Req = HttpRequest
   type Rep = HttpResponse
 
+  class HelloWorldResponder extends Service[Req, Rep] {
+    def apply(req: Req): Future[Rep] = {
+      val response = new DefaultHttpResponse(HTTP_1_1, OK)
+      response.setContent(copiedBuffer("Hello World!", UTF_8))
+      Future.value(response)
+    }
+  }
+
   def start(): Server = ServerBuilder()
     .codec(Http())
     .bindTo(address)
@@ -82,14 +90,6 @@ object HttpServerFilters {
         case "open sesame" => service(req)
         case _ => Future.exception(new IllegalArgumentException("You don't know the secret"))
       }
-    }
-  }
-
-  class HelloWorldResponder extends Service[Req, Rep] {
-    def apply(req: Req): Future[Rep] = {
-      val response = new DefaultHttpResponse(HTTP_1_1, OK)
-      response.setContent(copiedBuffer("Hello World!", UTF_8))
-      Future.value(response)
     }
   }
 
