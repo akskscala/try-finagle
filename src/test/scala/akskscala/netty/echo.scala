@@ -4,8 +4,8 @@ import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FlatSpec
 import util.control.Exception._
 import concurrent.ops._
-import java.io.{InputStreamReader, BufferedReader, BufferedInputStream}
-import java.net.{SocketException, InetSocketAddress, Socket}
+import java.io.{InputStreamReader, BufferedReader}
+import java.net.{SocketException, Socket}
 
 import resource._
 import java.security.SecureRandom
