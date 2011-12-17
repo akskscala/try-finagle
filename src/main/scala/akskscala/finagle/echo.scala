@@ -49,7 +49,7 @@ object StringCodec extends CodecFactory[String, String] {
         override def getPipeline(): ChannelPipeline = {
           val pipeline = Channels.pipeline()
           pipeline.addLast("line", new DelimiterBasedFrameDecoder(100, Delimiters.lineDelimiter: _*))
-          pipeline.addLast("edecode", new StringDecoder(CharsetUtil.UTF_8))
+          pipeline.addLast("decode", new StringDecoder(CharsetUtil.UTF_8))
           pipeline.addLast("encode", new StringEncoder(CharsetUtil.UTF_8))
           pipeline
         }
