@@ -3,8 +3,8 @@ package akskscala.twitterutil
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.WordSpec
 import com.twitter.util.{Future, Try, Return, Throw}
-import java.lang.RuntimeException
 import scala.util.control.Exception._
+import java.lang.RuntimeException
 
 /**
  * @see https://github.com/twitter/util/blob/master/util-core/src/test/scala/com/twitter/util/FutureSpec.scala
@@ -104,6 +104,31 @@ class UsingFutureSpec extends WordSpec with ShouldMatchers {
       }
       iteration onFailure {
         _ => fail("The iteration failed!")
+      }
+    }
+
+    "work fine with Future.monitored" in {
+      def failedToDo(): String = throw new RuntimeException("zzz")
+
+      // not monitored future throws Exception
+      handling(classOf[RuntimeException]) by {
+        t => println("RuntimeException is thrown... " + t)
+      } apply {
+        val notMonitoredFuture = Future.value(failedToDo())
+        notMonitoredFuture()
+      }
+
+      // monitored future does not throw Exception, but calls onFailure event
+      val monitoredFuture = Future.monitored {
+        Future.value(failedToDo())
+      }
+      monitoredFuture onSuccess {
+        res => fail("This should be failed.")
+      } onFailure {
+        t => {
+          println("onFailure called... " + t)
+          t.isInstanceOf[RuntimeException] should equal(true)
+        }
       }
     }
 
