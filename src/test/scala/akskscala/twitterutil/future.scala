@@ -14,14 +14,14 @@ class UsingFutureSpec extends WordSpec with ShouldMatchers {
   "Future" should {
 
     def sayHello(input: String): String = "Hello, " + input + "!"
-    val f1 = Future.value(sayHello("World")) onSuccess {
+    val f1: Future[String] = Future.value(sayHello("World")) onSuccess {
       result => println("Success!: " + result)
     } onFailure {
       t => println("Failed!: " + t.getLocalizedMessage)
     }
     val successCallback = (result: String) => println("Success!: " + result)
     val failureCallback = (t: Throwable) => println("Failed!: " + t.getLocalizedMessage)
-    val f2 = Future.value(sayHello("Twitter")) onSuccess successCallback onFailure failureCallback
+    val f2: Future[String] = Future.value(sayHello("Twitter")) onSuccess successCallback onFailure failureCallback
 
     "work fine with onSuccess" in {
       Future.value("foo") onSuccess {
@@ -133,6 +133,18 @@ class UsingFutureSpec extends WordSpec with ShouldMatchers {
         v => v should equal("---")
       } onFailure {
         t => fail("This should not be called.")
+      }
+    }
+
+    "work fine with join" in {
+      val fs: Future[(String, String)] = f1 join f2
+      def successCallback(strPair: (String, String)): Unit = {
+        println("onSuccess: " + strPair._1 + " , " + strPair._2)
+      }
+      val fsWithSuccessCallback = fs onSuccess successCallback _
+      fsWithSuccessCallback ensure {
+        // TryLike#ensure(f: => Unit): This[R]
+        println("Futures joined completed.")
       }
     }
 
