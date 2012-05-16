@@ -7,13 +7,13 @@ resolvers ++= Seq(
 
 libraryDependencies <++= (scalaVersion) { scalaVersion =>
   Seq(
-    "com.twitter" %% "finagle-core" % "1.9.11",
-    "com.twitter" %% "finagle-http" % "1.9.11",
-    "com.twitter" %% "finagle-stream" % "1.9.11",
-    "com.twitter" %% "util-core" % "1.12.8",
-    "org.jboss.netty" % "netty" % "3.2.7.Final",
-    "com.github.jsuereth.scala-arm" %% "scala-arm" % "0.3" % "test",
-    "org.scalatest" %% "scalatest" % "1.6.1" % "test"
+    "com.twitter" %% "finagle-core" % "4.0.2",
+    "com.twitter" %% "finagle-http" % "4.0.2",
+    "com.twitter" %% "finagle-stream" % "4.0.2",
+    "com.twitter" %% "util-core" % "4.0.1",
+    "io.netty" % "netty" % "3.4.5.Final",
+    "com.github.jsuereth.scala-arm" %% "scala-arm" % "1.1" % "test",
+    "org.scalatest" %% "scalatest" % "1.7.1" % "test"
   )
 }
 

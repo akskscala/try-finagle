@@ -104,7 +104,7 @@ class StreamClient(address: InetSocketAddress) {
     val req = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/")
 
     for {
-      clientService <- clientServiceFactory.make()
+      clientService <- clientServiceFactory.apply()
       streamResponse <- clientService(req)
     } {
       val httpResponse = streamResponse.httpResponse
